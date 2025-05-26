@@ -1,0 +1,317 @@
+terms:
+  # Fleets table
+  - pattern: "(?i)fleet id"
+    table: fleets
+    column: fleet_id
+
+  - pattern: "(?i)fleet name"
+    table: fleets
+    column: name
+
+  - pattern: "(?i)fleet country"
+    table: fleets
+    column: country
+
+  - pattern: "(?i)fleet time[_ ]zone"
+    table: fleets
+    column: time_zone
+
+  # Vehicles table
+  - pattern: "(?i)vehicle id"
+    table: vehicles
+    column: vehicle_id
+
+  - pattern: "(?i)vin"
+    table: vehicles
+    column: vin
+
+  - pattern: "(?i)\\b[A-Z]{3}\\d{4}[A-Z]\\b"  # e.g. BXD1234A
+    table: vehicles
+    column: vin
+
+  - pattern: "(?i)\\b[A-Z]{3}\\d{4}\\b"       # e.g. LDN8888
+    table: vehicles
+    column: vin
+
+  - pattern: "(?i)fleet id"
+    table: vehicles
+    column: fleet_id
+
+  - pattern: "(?i)model|SRM T3|Yutong E12|Optare Metrodecker|Optare Solo SR|BYD ADL Enviro200EV"
+    table: vehicles
+    column: model
+
+  - pattern: "(?i)make"
+    table: vehicles
+    column: make
+
+  - pattern: "(?i)variant"
+    table: vehicles
+    column: variant
+
+  - pattern: "(?i)registration no|registration number"
+    table: vehicles
+    column: registration_no
+
+  - pattern: "(?i)purchase date|date of purchase"
+    table: vehicles
+    column: purchase_date
+
+  # Raw Telemetry table
+  - pattern: "(?i)timestamp|time|ts"
+    table: raw_telemetry
+    column: ts
+
+  - pattern: "(?i)state of charge|soc|soc pct|soc percentage"
+    table: raw_telemetry
+    column: soc_pct
+
+  - pattern: "(?i)voltage"
+    table: raw_telemetry
+    column: pack_voltage_v
+
+  - pattern: "(?i)current"
+    table: raw_telemetry
+    column: pack_current_a
+
+  - pattern: "(?i)battery temperature|batt temp|batt_temp_c"
+    table: raw_telemetry
+    column: batt_temp_c
+
+  - pattern: "(?i)latitude|coordinates"
+    table: raw_telemetry
+    column: latitude
+
+  - pattern: "(?i)longitude|coordinates"
+    table: raw_telemetry
+    column: longitude
+
+  - pattern: "(?i)speed|speed_kph|kph"
+    table: raw_telemetry
+    column: speed_kph
+
+  - pattern: "(?i)odometer|odo|odo_km"
+    table: raw_telemetry
+    column: odo_km
+
+  # Processed Metrics
+  - pattern: "(?i)average speed|avg speed|avg_speed_kph_15m"
+    table: processed_metrics
+    column: avg_speed_kph_15m
+
+  - pattern: "(?i)distance|distance_km_15m"
+    table: processed_metrics
+    column: distance_km_15m
+
+  - pattern: "(?i)energy"
+    table: processed_metrics
+    column: energy_kwh_15m
+
+  - pattern: "(?i)battery health|battery_health"
+    table: processed_metrics
+    column: battery_health_pct
+
+  - pattern: "(?i)soc band|state of charge band"
+    table: processed_metrics
+    column: soc_band
+
+  # Charging Sessions
+  - pattern: "(?i)session id"
+    table: charging_sessions
+    column: session_id
+
+  - pattern: "(?i)start time|start_ts"
+    table: charging_sessions
+    column: start_ts
+
+  - pattern: "(?i)end time|end_ts"
+    table: charging_sessions
+    column: end_ts
+
+  - pattern: "(?i)start soc"
+    table: charging_sessions
+    column: start_soc
+
+  - pattern: "(?i)end soc"
+    table: charging_sessions
+    column: end_soc
+
+  - pattern: "(?i)energy kwh"
+    table: charging_sessions
+    column: energy_kwh
+
+  - pattern: "(?i)location"
+    table: charging_sessions
+    column: location
+
+  # Trips
+  - pattern: "(?i)trip id"
+    table: trips
+    column: trip_id
+
+  - pattern: "(?i)start time|start_ts"
+    table: trips
+    column: start_ts
+
+  - pattern: "(?i)end time|end_ts"
+    table: trips
+    column: end_ts
+
+  - pattern: "(?i)distance km|km|kilometer|distance"
+    table: trips
+    column: distance_km
+
+  - pattern: "(?i)energy kwh"
+    table: trips
+    column: energy_kwh
+
+  - pattern: "(?i)idle minutes|idling|idle"
+    table: trips
+    column: idle_minutes
+
+  - pattern: "(?i)average temperature"
+    table: trips
+    column: avg_temp_c
+
+  # Alerts
+  - pattern: "(?i)alert id"
+    table: alerts
+    column: alert_id
+
+  - pattern: "(?i)alert type"
+    table: alerts
+    column: alert_type
+
+  - pattern: "(?i)severity"
+    table: alerts
+    column: severity
+
+  - pattern: "(?i)alert time|alert_ts"
+    table: alerts
+    column: alert_ts
+
+  - pattern: "(?i)value"
+    table: alerts
+    column: value
+
+  - pattern: "(?i)threshold"
+    table: alerts
+    column: threshold
+
+  - pattern: "(?i)resolved"
+    table: alerts
+    column: resolved_bool
+
+  - pattern: "(?i)resolved time"
+    table: alerts
+    column: resolved_ts
+
+  # Battery Cycles
+  - pattern: "(?i)cycle id"
+    table: battery_cycles
+    column: cycle_id
+
+  - pattern: "(?i)depth of discharge|dod_pct"
+    table: battery_cycles
+    column: dod_pct
+
+  - pattern: "(?i)state of health|soh_pct|soh"
+    table: battery_cycles
+    column: soh_pct
+
+  # Maintenance Logs
+  - pattern: "(?i)maintenance id|maint id"
+    table: maintenance_logs
+    column: maint_id
+
+  - pattern: "(?i)maintenance type|maint type"
+    table: maintenance_logs
+    column: maint_type
+
+  - pattern: "(?i)start time|start_ts"
+    table: maintenance_logs
+    column: start_ts
+
+  - pattern: "(?i)end time|end_ts"
+    table: maintenance_logs
+    column: end_ts
+
+  - pattern: "(?i)cost"
+    table: maintenance_logs
+    column: cost_sgd
+
+  - pattern: "(?i)notes"
+    table: maintenance_logs
+    column: notes
+
+  # Drivers
+  - pattern: "(?i)driver id"
+    table: drivers
+    column: driver_id
+
+  - pattern: "(?i)driver name"
+    table: drivers
+    column: name
+
+  - pattern: "(?i)license number|license no"
+    table: drivers
+    column: license_no
+
+  - pattern: "(?i)hire date"
+    table: drivers
+    column: hire_date
+
+  - pattern: "(?i)fleet id"
+    table: drivers
+    column: fleet_id
+
+  # Driver-Trip Map
+  - pattern: "(?i)trip id"
+    table: driver_trip_map
+    column: trip_id
+
+  - pattern: "(?i)driver id"
+    table: driver_trip_map
+    column: driver_id
+
+  - pattern: "(?i)primary"
+    table: driver_trip_map
+    column: primary_bool
+
+  # Geofence Events
+  - pattern: "(?i)event id"
+    table: geofence_events
+    column: event_id
+
+  - pattern: "(?i)geofence name"
+    table: geofence_events
+    column: geofence_name
+
+  - pattern: "(?i)enter time|enter_ts"
+    table: geofence_events
+    column: enter_ts
+
+  - pattern: "(?i)exit time|exit_ts"
+    table: geofence_events
+    column: exit_ts
+
+  # Fleet Daily Summary
+  - pattern: "(?i)date"
+    table: fleet_daily_summary
+    column: date
+
+  - pattern: "(?i)total distance"
+    table: fleet_daily_summary
+    column: total_distance_km
+
+  - pattern: "(?i)total energy"
+    table: fleet_daily_summary
+    column: total_energy_kwh
+
+  - pattern: "(?i)active vehicles"
+    table: fleet_daily_summary
+    column: active_vehicles
+
+  - pattern: "(?i)average soc|avg soc"
+    table: fleet_daily_summary
+    column: avg_soc_pct
