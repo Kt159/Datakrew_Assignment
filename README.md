@@ -53,4 +53,23 @@ Datakrew_Assignment/
 ├── docker-compose.yml (Build multi-container docker application)
 └── README.md
 ```
+## Tech Stack Used
+![Diagram](./images/datakrew_techstack.png)
 
+## Login Page Logic/Routing
+![Diagram](./images/datakrew_login.png)
+1. User Input: The user types their **fleetname** into the login page on the frontend.
+2. API Call: The frontend sends this fleetname to your FastAPI backend's `/get-token` API endpoint.
+3. Fleet Validation: FastAPI then queries the PostgreSQL database to validate if the fleetname exists.
+4. JWT Production: If the fleetname is valid, FastAPI creates a JSON Web Token (JWT). This token contains the unique `fleet_id` associated with that user's fleet.
+5. Session & RLS Enforcement: The frontend uses this JWT for all subsequent requests. FastAPI validates the token to maintain the user's session and, critically, uses the `fleet_id` within the token to enforce Row-Level Security (RLS), ensuring the user can only access data belonging to their specific fleet.
+
+## Core LangChain AI-driven query logic
+![Diagram](./images/datakrew.drawio.png)
+1. **User Query**: The process begins with a user submitting a natural language query.
+2. **Agent** (Langchain): The user's query is received by the Agent (Langchain). The agent acts as the orchestrator, deciding the best course of action based on the query.
+3. **SQL Pipeline Tool** (Decision Point): The Langchain Agent, if it determines the query requires database interaction, invokes the SQL Pipeline Tool.
+4. **Extract Semantic Information**: As part of the SQL Pipeline Tool's preparation, relevant semantic information is extracted from `semantic_mapping.yaml`. This helps the LLM in understanding database schema terms.
+5. **Generate SQL Query** (MistralAI): Based on the user's query and potentially the semantic mappings, an LLM (specifically MistralAI) is used to Generate a SQL Query.
+6. **Run SQL Query** (PostgreSQL): The generated SQL query is then executed against the PostgreSQL database to Run the SQL Query and retrieve data.
+7. **LLM Response** (MistralAI): Finally, the results from the SQL query are fed back to an LLM (MistralAI), which then formulates a natural language LLM Response to the user.
