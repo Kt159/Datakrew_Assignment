@@ -136,4 +136,5 @@ async def ask_question_with_fleet_context(
     The agent uses the fleet_id from the token to filter data.
     """
     response = agent.run_query_with_agent(request.question, fleet_id)
-    return {"reply": response}
+    final_reply = response.get("output", "Error in generated output, please rephrase your question.")
+    return {"reply": final_reply}

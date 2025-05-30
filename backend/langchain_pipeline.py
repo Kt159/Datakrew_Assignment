@@ -13,7 +13,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_community.utilities import SQLDatabase
 from dotenv import load_dotenv
-from prompt_templates import fallback_schema, SQL_generation_prompt_template, SQL_error_prompt_template, LLM_answer_prompt_template
+from prompt_templates import fallback_schema, SQL_generation_prompt_template, LLM_answer_prompt_template
 from sqlalchemy import text
 from typing import List
 load_dotenv()
@@ -123,20 +123,20 @@ class QueryAssistant:
         except Exception as e:
             error_message = str(e)
             logging.error(f"SQL error: {e}\nQuery: {sql}")
-            error_response = self.sql_error_response(question, sql, error_message)
+            # error_response = self.sql_error_response(question, sql, error_message)
             logging.info(f"SQL Error Response: {error_response}")
-            return error_response
+            return error_message
     
-    def sql_error_response(self, question: str, sql: str, error_message: str, prompt_template: str = SQL_error_prompt_template) -> str:
-        prompt = PromptTemplate.from_template(prompt_template)
-        chain = prompt | self.llm | StrOutputParser()
-        response = chain.invoke({
-            "sql": sql,
-            "error_message": error_message,
-            "question": question
-        })
-        logging.info(f"SQL Error Response: {response}")
-        return response
+    # def sql_error_response(self, question: str, sql: str, error_message: str, prompt_template: str = SQL_error_prompt_template) -> str:
+    #     prompt = PromptTemplate.from_template(prompt_template)
+    #     chain = prompt | self.llm | StrOutputParser()
+    #     response = chain.invoke({
+    #         "sql": sql,
+    #         "error_message": error_message,
+    #         "question": question
+    #     })
+    #     logging.info(f"SQL Error Response: {response}")
+    #     return response
             
     def llm_response(self, question: str, sql: str, result: str, prompt_template: str = LLM_answer_prompt_template) -> str:
         prompt = PromptTemplate.from_template(prompt_template)
@@ -190,6 +190,8 @@ class AgentExecutor(QueryAssistant):
             agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
             verbose=False,
             callback_manager=callback_manager,
+            handle_parsing_errors=True,
+            max_iterations=3,
         )
 
     def run_query_with_agent(self, question: str, fleet_id: int) -> str:

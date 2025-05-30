@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import ChatWindow from "./ChatWindow";
-import Message from "./Message";
 import MessageInput from "./MessageInput";
 import "./App.css";
 
