@@ -48,7 +48,7 @@ Datakrew_Assignment/
 │       └── setupTests.js
 │   
 │
-├── .env (Environment variables listed here)
+├── .env.example (Environment variables listed here)
 ├── .gitignore 
 ├── docker-compose.yml (Build multi-container docker application)
 └── README.md
