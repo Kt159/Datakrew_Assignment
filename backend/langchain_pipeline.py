@@ -187,11 +187,15 @@ class AgentExecutor(QueryAssistant):
         self.active_fleet_id = fleet_id
         try:
             print(f"Running query with agent for fleet_id {fleet_id}: {question}")
-            response = self.agent.invoke(question)
-            return response
+            response_from_invoke = self.agent.invoke(question)
+            if isinstance(response_from_invoke, dict) and "output" in response_from_invoke:
+                return response_from_invoke
+            else:
+                logging.warning(f"Agent.invoke returned unexpected format: {response_from_invoke}")
+                return {"output": "I'm sorry, the agent returned an unexpected response format."}
         except Exception as e:
             logging.error(f"Agent execution error: {e}")
-            return f"An error occurred while processing your request: {str(e)}"
+            return {"output": f"An error occurred while processing your request: {str(e)}"}
         finally:
             self.active_fleet_id = None # Reset fleet_id after the query
 

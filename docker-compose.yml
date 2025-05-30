@@ -1,0 +1,70 @@
+services:
+  # 1. PostgreSQL Database Service
+  postgres_db:
+    image: postgres:14-alpine
+    container_name: datakrew_postgres_db
+    env_file:
+      - ./.env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$DB_USER -d $$DB_NAME"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  #2. Database Initialization Service
+  db_init:
+    build: ./backend
+    container_name: datakrew_db_initializer
+    env_file:
+      - ./.env
+    environment:
+      - DB_HOST=postgres_db
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    volumes:
+      - ./database:/app/database_scripts
+    command: python /app/database_scripts/import_data.py
+
+  # 3. FastAPI Backend Service
+  fastapi_app:
+    build: ./backend
+    container_name: datakrew_fastapi_service
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    depends_on: [db_init]
+    volumes:
+      - ./backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  #   # 4. React Frontend Service
+  react_app:
+    build: ./frontend
+    container_name: datakrew_react_chatbot
+    env_file:
+      - ./.env
+    ports:
+      - "3000:3000"
+    depends_on: [fastapi_app]
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm start
+
+volumes:
+  pg_data:

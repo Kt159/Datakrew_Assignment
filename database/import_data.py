@@ -6,6 +6,11 @@ from row_level_security import RLS_statements
 
 load_dotenv()
 
+script_directory = os.path.dirname(os.path.abspath(__file__))
+data_folder_path = os.path.join(script_directory, 'data')
+def get_csv_path(filename):
+    return os.path.join(data_folder_path, filename)
+
 # DB config from .env (Admin level access)
 conn = psycopg2.connect(
     dbname=os.getenv("DB_NAME"),
@@ -49,7 +54,6 @@ try:
             print(f"Failed to load {csv_path} into {table_name}: {e}")
             conn.rollback()
 
-    data_dir = "data"
     table_names = [
         "fleets",
         "vehicles",
@@ -67,10 +71,12 @@ try:
     ]
 
     for table in table_names:
-        csv_path = os.path.join(data_dir, f"{table}.csv")
+        csv_file = f"{table}.csv"
+        csv_path = get_csv_path(csv_file)
         if os.path.exists(csv_path):
             try:
                 load_csv(table, csv_path)
+                print(f"Successfully loaded {csv_file} into {table}.")
             except Exception as e:
                 print(f"Error loading {table}: {e}")
         else:
