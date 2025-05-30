@@ -22,13 +22,16 @@ function LoginPage({ onLoginSuccess }) {
 
     try {
       // Authenticate the fleet_name and return a JWT token.
-      const response = await fetch("http://localhost:8000/get-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: fleetName }),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/get-token`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name: fleetName }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response
@@ -141,7 +144,7 @@ function App() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/ask", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/ask`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

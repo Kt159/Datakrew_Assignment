@@ -34,14 +34,12 @@ except ValueError:
 # --- FastAPI Middleware for CORS ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost","http://localhost:3000"], 
+    allow_origins=["http://localhost","http://localhost:3000","https://datakrew-assignment-frontend-chatbot.onrender.com"], 
     allow_credentials=True, 
     allow_methods=["*"], 
     allow_headers=["*"], 
 )
 
-# --- OAuth2 Scheme for Token Extraction ---
-# This tells FastAPI how to expect the token (in Authorization header with Bearer prefix)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="get-token")
 
 # --- Pydantic Models ---

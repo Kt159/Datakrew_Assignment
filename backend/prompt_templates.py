@@ -62,19 +62,6 @@ SQL_generation_prompt_template = """
     - Only output SQL — no explanations, markdown, or commentary.
     """
 
-# SQL_error_prompt_template = """
-#     The following SQL query failed:
-#     {sql}
-
-#     Error message:
-#     {error_message}
-
-#     The user asked:
-#     {question}
-
-#     Inform the user clearly that their query requested data that does not exist.
-#     Suggest alternative queries or ask for clarification.
-#     """
 
 LLM_answer_prompt_template = """
     You are a data assistant. Use the following SQL query and its result 
