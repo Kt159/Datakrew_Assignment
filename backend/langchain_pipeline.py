@@ -6,14 +6,15 @@ from langchain.agents import initialize_agent
 from langchain.agents.agent_types import AgentType
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.callbacks.manager import CallbackManager
-from langchain.chat_models import init_chat_mode
+from langchain.chat_models import init_chat_model
 from langchain_core.tools import Tool
 from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_community.utilities import SQLDatabase
-from load_dotenv import load_dotenv
+from dotenv import load_dotenv
 from prompt_templates import fallback_schema, SQL_generation_prompt_template, SQL_error_prompt_template, LLM_answer_prompt_template
+from sqlalchemy import text
 from typing import List
 load_dotenv()
 
@@ -21,9 +22,10 @@ load_dotenv()
 if not os.path.exists('agent_logs.log'):
     with open('agent_logs.log', 'w') as f:
         pass  
+
 logging.basicConfig(
     filename='agent_logs.log',   
-    filemode='w',                  
+    filemode='a',                  
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
@@ -51,13 +53,13 @@ class QueryAssistant:
             temperature=temperature,
         )
         self.semantic_mapping_path = semantic_mapping_path
+        self.active_fleet_id = None
         self.db = self.connect_to_db()
-        self.logging = self.setup_logging()
 
     def connect_to_db(self):
         dbname = os.getenv("DB_NAME")
-        user = os.getenv("DB_USER")
-        password = os.getenv("DB_PASSWORD")
+        user = os.getenv("APP_ROLE_NAME")
+        password = os.getenv("APP_ROLE_PASSWORD")
         host = os.getenv("DB_HOST")
         port = os.getenv("DB_PORT")
 
@@ -79,6 +81,11 @@ class QueryAssistant:
         logging.info(f"Extracted semantic information: {extracted_info}")
         return extracted_info if hints else "No semantic information extracted."
 
+    def inject_sql_query_limit(self, sql: str) -> str:
+        if not re.search(r"\blimit\b", sql, re.IGNORECASE):
+            sql += " LIMIT 5000"
+        return sql
+
     def generate_sql_query(self, question: str, prompt_template: str = SQL_generation_prompt_template) -> str:
         prompt = PromptTemplate.from_template(prompt_template)
         chain = prompt | self.llm | StrOutputParser()
@@ -88,19 +95,37 @@ class QueryAssistant:
             "question": question
         })
         cleaned_sql = re.sub(r"^```sql|```$", "", sql.strip(), flags=re.IGNORECASE).strip()
-        logging.info(f"Generated SQL query: {cleaned_sql}")
-        return cleaned_sql
+        if cleaned_sql.endswith(';'):
+            cleaned_sql = cleaned_sql[:-1].strip()
+        
+        limited_sql = self.inject_sql_query_limit(cleaned_sql)
+        if not limited_sql.endswith(';'):
+            limited_sql += ';'
+        logging.info(f"Generated SQL query: {limited_sql}")
+        return limited_sql
 
     def run_sql_query(self, sql: str, question: str) -> str:
+        fleet_id = self.active_fleet_id 
+        if fleet_id is None:
+            raise ValueError("fleet_id not set for the current request. RLS cannot be applied.")
         try:
-            result = self.db.run(sql)
+            with self.db._engine.connect() as connection:
+                connection.execute(text(f"SET app.current_fleet_id = {int(fleet_id)};"))
+                connection.commit()
+                result_proxy = connection.execute(text(sql))
+                result = result_proxy.fetchall()
+                if not result:
+                    result = "No results found."
+
             logging.info(f"SQL Result: {result}")
-            return result if result else "No results found."
+            return result
+            
         except Exception as e:
             error_message = str(e)
             logging.error(f"SQL error: {e}\nQuery: {sql}")
             error_response = self.sql_error_response(question, sql, error_message)
             logging.info(f"SQL Error Response: {error_response}")
+            return error_response
     
     def sql_error_response(self, question: str, sql: str, error_message: str, prompt_template: str = SQL_error_prompt_template) -> str:
         prompt = PromptTemplate.from_template(prompt_template)
@@ -147,7 +172,14 @@ class AgentExecutor(QueryAssistant):
         tools = [
             Tool.from_function(
                 name="sql_pipeline_tool",
-                description="Use this when the user's query requires fetching information from the database.",
+                description=(
+                    "Use this tool ONLY when the user's query explicitly requires fetching information "
+                    "from the database, such as data about fleets, assets, trips, maintenance records, "
+                    "or specific measurements. "
+                    "Do NOT use this tool for greetings, general knowledge questions, "
+                    "conversational chitchat, or any query that does not clearly relate to retrieving "
+                    "structured data from the database. If the query is outside the scope of database "
+                    "information, respond directly in natural language."),
                 func=self.log_tool_usage(self.run_pipeline)
             )
         ]
@@ -157,16 +189,24 @@ class AgentExecutor(QueryAssistant):
             llm=self.llm,
             agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
             verbose=False,
-            callback_manager=callback_manager
+            callback_manager=callback_manager,
         )
 
-    def run_query_with_agent(self, question: str):
-        response = self.agent.invoke(question)
-        return response
+    def run_query_with_agent(self, question: str, fleet_id: int) -> str:
+        self.active_fleet_id = fleet_id
+        try:
+            print(f"Running query with agent for fleet_id {fleet_id}: {question}")
+            response = self.agent.invoke(question)
+            return response
+        except Exception as e:
+            logging.error(f"Agent execution error: {e}")
+            return f"An error occurred while processing your request: {str(e)}"
+        finally:
+            self.active_fleet_id = None # Reset fleet_id after the query
 
 
 ### Example usage
 
 # agent = AgentExecutor()
-# response = agent.run_query_with_agent("What is the SOC of vehicle GBM6296G right now?")
+# response = agent.run_query_with_agent("What is the SOC of vehicle GBM6296G right now?", fleet_id=1)
 

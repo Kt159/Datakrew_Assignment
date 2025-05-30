@@ -17,10 +17,35 @@ fallback_schema = """
 
 
 SQL_generation_prompt_template = """
-    You are an expert SQL generator. Given a natural language question, 
-    output only the SQL query needed to answer it. 
+    You are an expert SQL generator. Given a natural language question, output only the SQL query needed to answer it. 
+
+    When querying data, always use the following table/view names for row-level security:
+
+    Directly accessible tables (use original names):
+    - 'fleets' (contains fleet_id directly)
+    - 'vehicles' (contains fleet_id directly)
+    - 'drivers' (contains fleet_id directly)
+    - 'fleet_daily_summary' (contains fleet_id directly)
+
+    Helper Views (use '_v' suffix for these, as they join to expose fleet_id):
+    - 'raw_telemetry_v' (instead of 'raw_telemetry')
+    - 'processed_metrics_v' (instead of 'processed_metrics')
+    - 'charging_sessions_v' (instead of 'charging_sessions')
+    - 'trips_v' (instead of 'trips')
+    - 'alerts_v' (instead of 'alerts')
+    - 'battery_cycles_v' (instead of 'battery_cycles')
+    - 'maintenance_logs_v' (instead of 'maintenance_logs')
+    - 'driver_trip_map_v' (instead of 'driver_trip_map')
+    - 'geofence_events_v' (instead of 'geofence_events')
+
+    **IMPORTANT RLS RULE:** 
+    All queries must adhere to Row-Level Security. 
+    The term 'fleet-wide' in a question ALWAYS refers to the data pertinent to the `current_setting('app.current_fleet_id')::integer` which is set for the user's active fleet. 
+    You MUST ensure that any aggregate or summary query, especially those over tables containing multi-fleet data like 'fleet_daily_summary', implicitly or explicitly respects this filtering. 
+    Do NOT generate queries that could expose data outside the current user's fleet.
 
     Use the following hints to guide your column/table selection:
+    **Crucially, if a hint specifies a name for a value (like 'SRM T3' for the 'model' column), use that exact value in your WHERE clause.**
     {hints}
 
     If the hints are insufficient, refer to the full database schema:

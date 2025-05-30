@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic
+PyJWT
+python-dotenv
+SQLAlchemy
+psycopg2-binary
+pyyaml
+langchain-core>=0.1.0
+langchain-community==0.3.24
+langchain-mistralai
