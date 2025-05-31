@@ -1,4 +1,5 @@
 # Datakrew_Assignment
+## Project Directory
 ```markdown
 Datakrew_Assignment/
 ├── backend/
@@ -72,7 +73,7 @@ Before you begin, ensure you have the following installed:
     - Start by cloning the project repository to your local machine using Git:
 
     ```bash
-    git clone [https://github.com/Kt159/Datakrew_Assignment.git](https://github.com/Kt159/Datakrew_Assignment.git)
+    git clone https://github.com/Kt159/Datakrew_Assignment.git
     cd Datakrew_Assignment
     ```
 2.  **Configure Environment Variables**
@@ -152,3 +153,70 @@ Once `docker-compose up` has completed (it might take a few minutes for the firs
 5. **Generate SQL Query** (MistralAI): Based on the user's query and potentially the semantic mappings, an LLM (specifically MistralAI) is used to Generate a SQL Query.
 6. **Run SQL Query** (PostgreSQL): The generated SQL query is then executed against the PostgreSQL database to Run the SQL Query and retrieve data.
 7. **LLM Response** (MistralAI): Finally, the results from the SQL query are fed back to an LLM (MistralAI), which then formulates a natural language LLM Response to the user.
+
+## Important Files
+
+Here's a brief overview of some key files in this project:
+
+1.  **`automated_test.py`**
+    * **Location:** `backend/`
+    * **Purpose:** Contains automated tests for the backend logic and the AI agent, implemented using `pytest`.
+    * **Current Test Scope:** Primarily tests functionality using `fleet_id = 1` from the mock data.
+    * **How to Run:**
+        ```bash
+        cd backend
+        pytest automated_test.py
+        ```
+
+2.  **`semantic_mappings.yaml`**
+    * **Location:** `backend/`
+    * **Purpose:** Defines semantic mappings that help the LLM (Large Language Model) and the LangChain agent understand how natural language concepts relate to the underlying database schema. This is crucial for accurate SQL query generation.
+
+3.  **`import_data.py`**
+    * **Location:** `database/`
+    * **Purpose:** This critical script handles:
+        * Creating the PostgreSQL database schema (tables, columns, etc.).
+        * Applying Row-Level Security (RLS) policies.
+        * Loading initial data from the CSV files located in `database/data/`.
+    * **Execution:** This script is automatically run as part of the initial `docker-compose up` process.
+    * **To Run Manually (or Independently):**
+        ```bash
+        cd database
+        python import_data.py
+        ```
+
+4.  **`langchain_pipeline.py`**
+    * **Location:** `backend/`
+    * **Purpose:** Orchestrates the end-to-end question-to-response pipeline, leveraging LangChain. This file contains the core logic for the AI agent, tool definitions, and how LLM interactions are managed to fulfill user queries.
+    * **Usage Example:**
+        ```python
+        from backend.langchain_pipeline import AgentExecutor
+
+        # Instantiate the agent.
+        # This requires your Mistral API Key to be set in environment variables
+        # and your PostgreSQL DB to be running and populated.
+        
+        # --- You need to replace <Your Question> and <Your fleet_id> with actual values ---
+        agent = AgentExecutor()
+        agent.active_fleet_id = <fleet_id>
+
+        # Test Semantic Information Extraction
+        # This function identifies key entities or concepts from the question
+        extracted_info = agent.extract_semantic_info(question=<Your Question>)
+        print(f"Extracted Info: {extracted_info}")
+
+        # Test SQL Generation
+        # This function translates the natural language question into an SQL query
+        generated_SQL = agent.generate_sql_query(question=<Your Question>)
+        print(f"Generated SQL: {generated_SQL}")
+
+        # Test SQL result from DB
+        # This function executes the generated SQL query against the database
+        result_from_db = agent.run_sql_query(sql=generated_SQL, question=<Your Question>)
+        print(f"Result from DB: {result_from_db}")
+
+        # Test end-to-end pipeline
+        # This runs the full agent process, from question to final natural language response
+        response = agent.run_query_with_agent(question=<Your Question>, fleet_id=<fleet_id>)
+        print(f"End-to-End Response: {response}")
+        ```
