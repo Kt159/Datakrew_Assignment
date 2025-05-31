@@ -48,11 +48,90 @@ Datakrew_Assignment/
 │       └── setupTests.js
 │   
 │
-├── .env (Environment variables listed here)
+├── .env.example (Environment variables listed here)
 ├── .gitignore 
 ├── docker-compose.yml (Build multi-container docker application)
 └── README.md
 ```
+## 🚀 Quick Start Guide
+
+Follow these steps to get the Datakrew Assignment up and running on your local machine.
+
+### Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+* **Git:** For cloning the repository.
+    * [Download Git](https://git-scm.com/downloads)
+* **Docker Desktop:** Includes Docker Engine and Docker Compose, essential for running our containerized application.
+    * [Download Docker Desktop](https://www.docker.com/products/docker-desktop)
+
+### Getting Started
+
+1.  **Clone the Repository**
+    - Start by cloning the project repository to your local machine using Git:
+
+    ```bash
+    git clone [https://github.com/Kt159/Datakrew_Assignment.git](https://github.com/Kt159/Datakrew_Assignment.git)
+    cd Datakrew_Assignment
+    ```
+2.  **Configure Environment Variables**
+    - The project relies on environment variables for database credentials, API keys, and other settings.
+    * **Create your `.env` file:** 
+        ```bash
+        cp .env.example .env
+        ```
+    * Open the `.env` file and populate it with your specific details.
+
+    *Example `.env` content:*
+    ```text
+    # Database Configuration
+    DB_USER=your_db_user
+    DB_PASSWORD=your_db_password
+    DB_NAME=datakrew_db
+    DB_HOST=postgres_db
+    DB_PORT=5432
+    URI=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+
+    #Set up lower access previllage for users
+    APP_ROLE_NAME=fleet_users
+    APP_ROLE_PASSWORD=fleet_password
+    
+    #Mistral API Key
+    MISTRAL_API_KEY=your_mistral_api_key_here
+
+    #Security (JWT)
+    SECRET_KEY=mockup_secret_key
+    ALGORITHM=HS256
+    ACCESS_TOKEN_EXPIRE_MINUTES=30
+    
+    #API endpoints
+    REACT_APP_API_URL=http://localhost:8000
+    ```
+
+3.  **Run the Application with Docker Compose**
+    - Navigate to the root directory of the cloned repository (where `docker-compose.yml` is located) and run the following command to build and start all services:
+
+    ```bash
+    docker-compose up --build
+    ```
+    * The `--build` flag ensures that your Docker images are rebuilt, incorporating any recent code changes. This is important on the first run or after modifying Dockerfiles/dependencies.
+    * This command will:
+        * Build the `backend` and `frontend` Docker images.
+        * Start the PostgreSQL database container.
+        * Run the database initialization script (schema creation and data import).
+        * Start the FastAPI backend service.
+        * Start the React frontend development server.
+
+### Verifying the Setup
+
+Once `docker-compose up` has completed (it might take a few minutes for the first build and data import):
+
+* **Frontend Access:** Open your web browser and navigate to `http://localhost:3000`. You should see the login page/chatbot interface.
+* **FastAPI Service:** Open your web browser and navigate to `http://localhost:8000/docs`. You should see the FastAPI SwaggerUI for more detailed API endpoint documentation.
+* **Backend Logs:** You can monitor the logs of individual services in your terminal (where `docker-compose up` is running) or you can also view the logs within docker desktop GUI.
+* **Database Initializer:** Confirm that the `datakrew_db_initializer` service has finished successfully, indicating the database schema is created and data is loaded.
+  
 ## Tech Stack Used
 ![Diagram](./images/datakrew_techstack.png)
 
