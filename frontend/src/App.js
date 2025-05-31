@@ -99,7 +99,7 @@ function LoginPage({ onLoginSuccess }) {
   );
 }
 
-// App Component (Modified)
+// App Component
 function App() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -121,13 +121,13 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem("jwt");
     setIsLoggedIn(false);
-    setMessages([]); // Clear messages on logout
+    setMessages([]);
   };
 
   const sendMessage = async (text) => {
     if (!text.trim()) return;
 
-    const token = localStorage.getItem("jwt"); // Retrieve the JWT
+    const token = localStorage.getItem("jwt");
     if (!token) {
       console.error("No JWT token found. User not authenticated.");
       const errorMessage = {

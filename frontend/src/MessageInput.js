@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./App.css"; // For basic styling
+import "./App.css";
 
 function MessageInput({ onSendMessage, loading }) {
   const [inputText, setInputText] = useState("");
@@ -7,7 +7,7 @@ function MessageInput({ onSendMessage, loading }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSendMessage(inputText);
-    setInputText(""); // Clear input after sending
+    setInputText("");
   };
 
   return (
@@ -17,7 +17,7 @@ function MessageInput({ onSendMessage, loading }) {
         value={inputText}
         onChange={(e) => setInputText(e.target.value)}
         placeholder="Type your message..."
-        disabled={loading} // Disable input when loading
+        disabled={loading}
       />
       <button type="submit" disabled={loading}>
         {loading ? "Sending..." : "Send"}

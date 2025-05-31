@@ -1,18 +1,15 @@
 # main.py
 import os
-from typing import Optional # <--- ADDED
-from datetime import datetime, timedelta, timezone # <--- ADDED timezone
+from typing import Optional 
+from datetime import datetime, timedelta, timezone 
 import jwt
-from dotenv import load_dotenv # Changed from load_dotenv to from dotenv import load_dotenv
-from sqlalchemy import text # <--- ADDED
+from dotenv import load_dotenv 
+from sqlalchemy import text 
 
-from fastapi import FastAPI, Request, HTTPException, status, Depends # <--- ADDED Depends
-from fastapi.security import OAuth2PasswordBearer # <--- ADDED
+from fastapi import FastAPI, Request, HTTPException, status, Depends 
+from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-
-# Assuming langchain_pipeline and AgentExecutor are correctly set up
-# And agent.db is your SQLAlchemy engine or wrapper
 from langchain_pipeline import AgentExecutor
 
 # Load environment variables
@@ -24,9 +21,9 @@ agent = AgentExecutor()
 
 # --- Configuration from Environment Variables ---
 SECRET_KEY = os.getenv('SECRET_KEY')
-ALGORITHM = os.getenv('ALGORITHM', 'HS256') # Default algorithm if not set
+ALGORITHM = os.getenv('ALGORITHM', 'HS256') 
 try:
-    ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', 30)) # <--- CONVERTED TO INT, added default
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', 30))
 except ValueError:
     print("Warning: ACCESS_TOKEN_EXPIRE_MINUTES in .env is not an integer. Defaulting to 30.")
     ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -34,7 +31,8 @@ except ValueError:
 # --- FastAPI Middleware for CORS ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost","http://localhost:3000","https://datakrew-assignment-frontend-chatbot.onrender.com"], 
+    allow_origins=["https://localhost","https://localhost:3000","https://datakrew-assignment-frontend-chatbot.onrender.com",
+                    "https://0.0.0.0"], 
     allow_credentials=True, 
     allow_methods=["*"], 
     allow_headers=["*"], 

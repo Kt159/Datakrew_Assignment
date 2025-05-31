@@ -1,5 +1,5 @@
 import React from "react";
-import "./App.css"; // For basic styling
+import "./App.css";
 
 function Message({ sender, text }) {
   const messageClass = sender === "user" ? "user-message" : "bot-message";
